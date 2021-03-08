@@ -5,4 +5,18 @@
         <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Disqord" Version="1.0.0-nightly-00082" />
+      <PackageReference Include="Disqord.Bot" Version="1.0.0-nightly-00082" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0-preview.1.21102.12" />
+      <PackageReference Include="TensorFlow.NET" Version="0.33.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="config.json" />
+      <Content Include="config.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>
