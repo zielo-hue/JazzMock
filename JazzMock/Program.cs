@@ -31,16 +31,10 @@ namespace JazzMock
                         .BuildServiceProvider(),
             })
         {
-            // Disqord seems to log by default now
-            // Logger.Logged += MessageLogged;
-
             CommandExecutionFailed += Handler;
 
             AddModules(typeof(Program).Assembly);
         }
-
-        private void MessageLogged(object sender, Disqord.Logging.LogEventArgs e)
-            => Console.WriteLine(e);
         
         // In case of practical problem:
         private Task Handler(CommandExecutionFailedEventArgs args)

@@ -14,9 +14,9 @@
 
     <ItemGroup>
       <None Remove="config.json" />
-      <Content Include="config.json">
+      <Compile Include="config.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
+      </Compile>
     </ItemGroup>
 
 </Project>
