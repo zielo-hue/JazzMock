@@ -5,6 +5,7 @@ using Disqord;
 using Disqord.Bot;
 using Disqord.Bot.Prefixes;
 using Disqord.Bot.Sharding;
+using JazzMock.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using Qmmands;
@@ -28,6 +29,7 @@ namespace JazzMock
                 ProviderFactory = bot =>
                     new ServiceCollection()
                         .AddSingleton((DiscordBot) bot)
+                        .AddSingleton(new GptGeneratorService())
                         .BuildServiceProvider(),
             })
         {
