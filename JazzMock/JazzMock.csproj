@@ -9,7 +9,7 @@
       <PackageReference Include="Disqord" Version="1.0.0-nightly-00082" />
       <PackageReference Include="Disqord.Bot" Version="1.0.0-nightly-00082" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0-preview.1.21102.12" />
-      <PackageReference Include="TensorFlow.NET" Version="0.40.0" />
+      <PackageReference Include="TensorFlow.NET" Version="0.20.1" />
     </ItemGroup>
 
     <ItemGroup>
