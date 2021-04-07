@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Disqord;
 using Disqord.Bot;
+using JazzMock.Services;
 using Qmmands;
 
 namespace JazzMock.Modules
@@ -8,16 +9,16 @@ namespace JazzMock.Modules
     public class MainModule : DiscordModuleBase
     {
         public DiscordBot Bot { get; set; }
+        public GptGeneratorService GptGeneratorService { get; set; }
 
         [Command("help", "info")]
         [Description("Displays information about the bot.")]
-        public Task HelpAsync()
-            => ReplyAsync(embed: new LocalEmbedBuilder()
-                .WithTitle("jazzmom")
-                .WithDescription("powere b gpt-2 n tensorflow.NET....")
-                .WithColor(Color.Purple)
-                .Build());
-        
-        
+        public async Task HelpAsync()
+        {
+            var embed = new LocalEmbedBuilder()
+                .WithTitle(Bot.CurrentUser.Name)
+                .WithDescription("powere b gpt-2 n shiny new disqord...");
+            await Response(embed);
+        }
     }
 }
