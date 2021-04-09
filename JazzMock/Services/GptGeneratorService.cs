@@ -45,12 +45,15 @@ namespace JazzMock.Services
 
         private async Task OnMessage(object sender, MessageReceivedEventArgs eventArgs)
         {
-            // _rand.Next(1, 5) != 1 || 
             if (!(eventArgs.Message.Author != _client.CurrentUser
-                                                          && (eventArgs.Message.Content.Contains("nemu")
-                                                          || eventArgs.Message.MentionedUsers.Contains(_client.CurrentUser)
-                                                          )
-                                                          )) // randomizer? lol
+                    && (eventArgs.Message.Content.ToLower().Contains("nemu")
+                      || eventArgs.Message.Content.ToLower().Contains(_client.CurrentUser.Name) 
+                      || eventArgs.Message.MentionedUsers.Contains(_client.CurrentUser)
+                    )
+                    ) 
+                || !(eventArgs.Message.Author != _client.CurrentUser
+                     && _rand.Next(1, 20) == 1
+                     && (eventArgs.Message.ChannelId == 566751794148016148 || eventArgs.Message.ChannelId == 633698411379556363))) // TODO cleanup
                 return;
 
             try
@@ -71,7 +74,10 @@ namespace JazzMock.Services
 
                     var genPrefix = String.Join("\n", history);
                     var genResponse = await GenerateMessage(genPrefix + "\n<|startoftext|>"
-                                                                      + eventArgs.Message.Content.Replace("nemuri", "").Trim()
+                                                                      + eventArgs.Message.Content
+                                                                          .Replace(_client.CurrentUser.Name, "")
+                                                                          .Replace("nemu", "")
+                                                                          .Replace("  ", " ").Trim()
                                                                       + "<|endoftext|>\n<|startoftext|>");
                     if (String.IsNullOrWhiteSpace(genResponse))
                         genResponse = "_ _";
