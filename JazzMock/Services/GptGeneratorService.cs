@@ -45,7 +45,7 @@ namespace JazzMock.Services
 
         private async Task OnMessage(object sender, MessageReceivedEventArgs eventArgs)
         {
-            var fun = 0;
+            var fun = false;
             if (!(eventArgs.Message.Author.Id != _client.CurrentUser.Id
                   && (eventArgs.Message.Content.ToLower().Contains("nemu")
                       || eventArgs.Message.Content.ToLower().Contains(_client.CurrentUser.Name)
@@ -53,14 +53,14 @@ namespace JazzMock.Services
                   )
                 )
             {
-                fun = _rand.Next(1, 20);
-                if (!(fun == 1
+                fun = _rand.Next(1, 5) == 1;
+                if (!(fun
+                      && eventArgs.Message.Author.Id != _client.CurrentUser.Id
                       && (eventArgs.Message.ChannelId == 566751794148016148 ||
                           eventArgs.Message.ChannelId == 633698411379556363)
                     ))
                 {
-                    if(eventArgs.Message.Author.Id == _client.CurrentUser.Id)
-                        return;
+                    return;
                 } // TODO cleanup this sucks lol
             }
 
@@ -91,7 +91,7 @@ namespace JazzMock.Services
                         genResponse = "_ _";
                     var msg = new LocalMessageBuilder()
                         .WithContent(genResponse);
-                    if (fun != 1)
+                    if (!fun) // since fun==1 responses are unprovoked "comments" in a conversation remove the reply
                         msg.WithReply(eventArgs.MessageId, eventArgs.ChannelId, eventArgs.GuildId);
                     Logger.LogInformation("replying...");
                     await _client.SendMessageAsync(eventArgs.ChannelId, msg.Build(), new DefaultRestRequestOptions());
