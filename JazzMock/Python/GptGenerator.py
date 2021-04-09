@@ -10,6 +10,10 @@ while True:
     message = socket.recv()
     print(f"received request {message}")
 
+    if "die" in str(message):
+        print("got die command, dying...")
+        break
+
     time.sleep(1)
 
     socket.send(b"World")
