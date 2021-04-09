@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,25 +46,40 @@ namespace JazzMock.Services
         private async Task OnMessage(object sender, MessageReceivedEventArgs eventArgs)
         {
             // _rand.Next(1, 5) != 1 || 
-            if (eventArgs.ChannelId != 566751794148016148 || !eventArgs.Message.Content.Contains("nemuri")
-                                                          || !eventArgs.Message.Content.Contains("nem")
-                                                          || eventArgs.Message.Author == _client.CurrentUser) // randomizer? lol
+            if (!(eventArgs.Message.Author != _client.CurrentUser
+                                                          && (eventArgs.Message.Content.Contains("nemu")
+                                                          || eventArgs.Message.MentionedUsers.Contains(_client.CurrentUser)
+                                                          )
+                                                          )) // randomizer? lol
                 return;
-            
-            
-            
+
             try
             {
-                var genResponse = await GenerateMessage(eventArgs.Message.Content.Replace("nemuri", ""));
-                if (String.IsNullOrWhiteSpace(genResponse))
-                    genResponse = "_ _";
-                var msg = new LocalMessageBuilder()
-                    .WithContent(genResponse)
-                    .WithReply(eventArgs.MessageId, eventArgs.ChannelId, eventArgs.GuildId)
-                    .Build();
-                Logger.LogInformation("replying...");
                 using (eventArgs.Channel.BeginTyping())
                 {
+                    var oldMessages = await eventArgs.Channel.FetchMessagesAsync(limit: 7, RetrievalDirection.Before,
+                        startFromId: eventArgs.MessageId, new DefaultRestRequestOptions());
+                    List<String> history = new List<string>();
+                    foreach (var oldMessage in oldMessages)
+                    {
+                        if (!String.IsNullOrWhiteSpace(oldMessage.Content))
+                        {
+                            history.Add("<|startoftext|>" + oldMessage.Content + "<|endoftext|>");
+                        }
+                    }
+                    history.Reverse();
+
+                    var genPrefix = String.Join("\n", history);
+                    var genResponse = await GenerateMessage(genPrefix + "\n<|startoftext|>"
+                                                                      + eventArgs.Message.Content.Replace("nemuri", "").Trim()
+                                                                      + "<|endoftext|>\n<|startoftext|>");
+                    if (String.IsNullOrWhiteSpace(genResponse))
+                        genResponse = "_ _";
+                    var msg = new LocalMessageBuilder()
+                        .WithContent(genResponse)
+                        .WithReply(eventArgs.MessageId, eventArgs.ChannelId, eventArgs.GuildId)
+                        .Build();
+                    Logger.LogInformation("replying...");
                     await _client.SendMessageAsync(eventArgs.ChannelId, msg, new DefaultRestRequestOptions());
                 }
             }

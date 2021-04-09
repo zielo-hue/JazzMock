@@ -13,20 +13,26 @@ context = zmq.Context()
 socket = context.socket(zmq.REP)
 socket.bind("tcp://*:5556")
 
+newline = "\n"
+
 while True:
     print("waiting...")
     message = socket.recv()
-    print(f"received request {message}")
+    print(f"received request {message.decode('utf-8')}")
 
     results = gpt2.generate(sess, run_name=RUN_NAME, temperature=.7, nsamples=2, batch_size=2,
-                            prefix="<|startoftext|>" + message.decode("utf-8").strip() + "<|endoftext|>\n<|startoftext|>", length=250,
+                            prefix=message.decode(
+                                "utf-8"), length=250,
                             return_as_list=True, include_prefix=False, truncate="<|endoftext|>")
     for r in results:
         if r.isspace() or len(r.strip()) == 0:
             results.remove(r)
 
     print(*results, sep=" || ")
-    random_result = random.choice(results).encode()
-    socket.send(random_result)
+    # random_result = random.choice(results).encode()
+    # socket.send(random_result)
+    # socket.send_string(newline.join(results))
+    socket.send_string(random.choice(results))
+
     print("sent response\n")
     time.sleep(.1)

@@ -8,7 +8,6 @@ namespace JazzMock.Modules
 {
     public class MainModule : DiscordModuleBase
     {
-        public DiscordBot Bot { get; set; }
         public GptGeneratorService GptGeneratorService { get; set; }
 
         [Command("help", "info")]
@@ -16,7 +15,7 @@ namespace JazzMock.Modules
         public async Task HelpAsync()
         {
             var embed = new LocalEmbedBuilder()
-                .WithTitle(Bot.CurrentUser.Name)
+                .WithTitle(GptGeneratorService.Client.CurrentUser.Name)
                 .WithDescription("powere b gpt-2 n shiny new disqord...");
             await Response(embed);
         }
