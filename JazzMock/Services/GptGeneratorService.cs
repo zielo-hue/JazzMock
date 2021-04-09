@@ -33,27 +33,9 @@ namespace JazzMock.Services
             client.MessageReceived += OnMessage;
         }
 
-        private async Task NetmqTest()
-        {
-            return;
-            using var requestSocket = new RequestSocket();
-            requestSocket.Connect("tcp://127.0.0.1:5556");
-            await Task.Run(() =>
-            {
-                while (true)
-                {
-                    Task.Delay(10000);
-                    requestSocket.SendFrame("Hello");
-                    var msg = requestSocket.ReceiveFrameString();
-                    Logger.LogInformation(msg);
-                }
-            });
-        }
-
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await Client.WaitUntilReadyAsync(stoppingToken);
-            _ = NetmqTest();
             _prompts = new Stack();
             _rand = new Random();
             _tunnel = new RequestSocket();
@@ -63,7 +45,9 @@ namespace JazzMock.Services
         private async Task OnMessage(object sender, MessageReceivedEventArgs eventArgs)
         {
             // _rand.Next(1, 5) != 1 || 
-            if (eventArgs.ChannelId != 566751794148016148 || !eventArgs.Message.Content.Contains("nemuri") || eventArgs.Message.Author == _client.CurrentUser) // randomizer? lol
+            if (eventArgs.ChannelId != 566751794148016148 || !eventArgs.Message.Content.Contains("nemuri")
+                                                          || !eventArgs.Message.Content.Contains("nem")
+                                                          || eventArgs.Message.Author == _client.CurrentUser) // randomizer? lol
                 return;
             
             
