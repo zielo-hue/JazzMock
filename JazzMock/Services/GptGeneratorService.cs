@@ -45,22 +45,30 @@ namespace JazzMock.Services
 
         private async Task OnMessage(object sender, MessageReceivedEventArgs eventArgs)
         {
-            if (!(eventArgs.Message.Author != _client.CurrentUser
-                    && (eventArgs.Message.Content.ToLower().Contains("nemu")
-                      || eventArgs.Message.Content.ToLower().Contains(_client.CurrentUser.Name) 
-                      || eventArgs.Message.MentionedUsers.Contains(_client.CurrentUser)
-                    )
-                    ) 
-                || !(eventArgs.Message.Author != _client.CurrentUser
-                     && _rand.Next(1, 20) == 1
-                     && (eventArgs.Message.ChannelId == 566751794148016148 || eventArgs.Message.ChannelId == 633698411379556363))) // TODO cleanup
-                return;
+            var fun = 0;
+            if (!(eventArgs.Message.Author.Id != _client.CurrentUser.Id
+                  && (eventArgs.Message.Content.ToLower().Contains("nemu")
+                      || eventArgs.Message.Content.ToLower().Contains(_client.CurrentUser.Name)
+                      || eventArgs.Message.MentionedUsers.Contains(_client.CurrentUser))
+                  )
+                )
+            {
+                fun = _rand.Next(1, 20);
+                if (!(fun == 1
+                      && (eventArgs.Message.ChannelId == 566751794148016148 ||
+                          eventArgs.Message.ChannelId == 633698411379556363)
+                    ))
+                {
+                    if(eventArgs.Message.Author.Id == _client.CurrentUser.Id)
+                        return;
+                } // TODO cleanup this sucks lol
+            }
 
             try
             {
                 using (eventArgs.Channel.BeginTyping())
                 {
-                    var oldMessages = await eventArgs.Channel.FetchMessagesAsync(limit: 7, RetrievalDirection.Before,
+                    var oldMessages = await eventArgs.Channel.FetchMessagesAsync(limit: 5, RetrievalDirection.Before,
                         startFromId: eventArgs.MessageId, new DefaultRestRequestOptions());
                     List<String> history = new List<string>();
                     foreach (var oldMessage in oldMessages)
@@ -82,11 +90,11 @@ namespace JazzMock.Services
                     if (String.IsNullOrWhiteSpace(genResponse))
                         genResponse = "_ _";
                     var msg = new LocalMessageBuilder()
-                        .WithContent(genResponse)
-                        .WithReply(eventArgs.MessageId, eventArgs.ChannelId, eventArgs.GuildId)
-                        .Build();
+                        .WithContent(genResponse);
+                    if (fun != 1)
+                        msg.WithReply(eventArgs.MessageId, eventArgs.ChannelId, eventArgs.GuildId);
                     Logger.LogInformation("replying...");
-                    await _client.SendMessageAsync(eventArgs.ChannelId, msg, new DefaultRestRequestOptions());
+                    await _client.SendMessageAsync(eventArgs.ChannelId, msg.Build(), new DefaultRestRequestOptions());
                 }
             }
             catch (Exception e)
