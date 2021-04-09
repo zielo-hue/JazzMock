@@ -17,10 +17,9 @@ while True:
     message = socket.recv()
     print(f"received request {message}")
 
-    results = gpt2.generate(sess, run_name=RUN_NAME, temperature=.9, nsamples=1, batch_size=1,
-                            prefix=message, length=250,
-                            return_as_list=False, include_prefix=False, truncate="\n\n")
-
-    socket.send(results.encode('utf-8'))
+    results = gpt2.generate(sess, run_name=RUN_NAME, temperature=.9, nsamples=2, batch_size=2,
+                            prefix="<|startoftext|>" + message.decode("utf-8") + "<|endoftext|>", length=250,
+                            return_as_list=True, include_prefix=False, truncate="<|endoftext|>")
+    socket.send(results[0].encode())
     print("sent response\n")
     time.sleep(.1)

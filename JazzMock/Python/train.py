@@ -16,7 +16,7 @@ sess = gpt2.start_tf_sess()
 gpt2.finetune(
     sess,
     dataset=file_name,
-    model_name='355M',  # Model you have already downloaded
+    model_name=model_name,  # Model you have already downloaded
     steps=-1,  # -1 will do unlimited. Enter number of iterations otherwise
     restore_from='latest',  # Also allows 'fresh' which will overwrite old training
     run_name='test',  # The name to pull or create a checkpoint under
