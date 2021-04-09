@@ -11,6 +11,7 @@ using Disqord.Rest.Default;
 using Microsoft.Extensions.Logging;
 using NetMQ;
 using NetMQ.Sockets;
+using Qmmands;
 using Serilog;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
@@ -70,10 +71,13 @@ namespace JazzMock.Services
 
         public async Task<string> GenerateMessage(string prefixArg)
         {
-            return new []{"lol"};
-            _prompts.Push(prefixArg);
+            if (_busySocket)
+                _prompts.Push(prefixArg);
+            _busySocket = true;
+            _tunnel.SendFrame(prefixArg);
+            var response = _tunnel.ReceiveFrameString();
+            _busySocket = false;
+            return response;
         }
-        
-        
     }
 }
