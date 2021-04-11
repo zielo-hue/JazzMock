@@ -14,12 +14,14 @@ socket = context.socket(zmq.REP)
 socket.bind("tcp://*:5556")
 
 newline = "\n"
+requestCount = 0
 
 while True:
     print("waiting...")
     message = socket.recv()
     print(f"received request {message.decode('utf-8')}")
 
+    requestCount += 1
     results = gpt2.generate(sess, run_name=RUN_NAME, temperature=.7, nsamples=2, batch_size=2,
                             prefix=message.decode(
                                 "utf-8"), length=250,
@@ -35,4 +37,8 @@ while True:
     socket.send_string(random.choice(results))
 
     print("sent response\n")
+
+    if requestCount > 50:
+        gpt2.reset_session(sess)
+
     time.sleep(.1)
