@@ -40,7 +40,10 @@ while True:
 
     if requestCount > 30:
         print("resetting graph...")
+        requestCount = 0
         gpt2.reset_session(sess)
         sess = gpt2.start_tf_sess()
+        gpt2.load_gpt2(sess, run_name=RUN_NAME)  # The name of your checkpoint
+        graph = gpt2.tf.compat.v1.get_default_graph()
 
     time.sleep(.1)
