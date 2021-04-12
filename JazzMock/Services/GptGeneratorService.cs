@@ -73,9 +73,16 @@ namespace JazzMock.Services
                     List<String> history = new List<string>();
                     foreach (var oldMessage in oldMessages)
                     {
-                        if (!String.IsNullOrWhiteSpace(oldMessage.Content))
+                        try
                         {
-                            history.Add("<|startoftext|>" + oldMessage.Content + "<|endoftext|>");
+                            if (!String.IsNullOrWhiteSpace(oldMessage.Content))
+                            {
+                                history.Add("<|startoftext|>" + oldMessage.Content + "<|endoftext|>");
+                            }
+                        }
+                        catch
+                        {
+                            // ignored
                         }
                     }
                     history.Reverse();
