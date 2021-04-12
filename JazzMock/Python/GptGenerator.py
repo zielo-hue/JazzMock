@@ -38,7 +38,9 @@ while True:
 
     print("sent response\n")
 
-    if requestCount > 50:
+    if requestCount > 30:
+        print("resetting graph...")
         gpt2.reset_session(sess)
+        sess = gpt2.start_tf_sess()
 
     time.sleep(.1)

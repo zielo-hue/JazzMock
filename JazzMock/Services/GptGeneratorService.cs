@@ -53,7 +53,7 @@ namespace JazzMock.Services
                   )
                 )
             {
-                fun = _rand.Next(1, 5) == 1;
+                fun = _rand.Next(1, 10) == 1;
                 if (!(fun
                       && eventArgs.Message.Author.Id != _client.CurrentUser.Id
                       && (eventArgs.Message.ChannelId == 566751794148016148 ||
