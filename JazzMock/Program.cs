@@ -57,7 +57,7 @@ namespace JazzMock
                     bot.Token = context.Configuration["TOKEN"];
                     bot.UseMentionPrefix = true;
                     bot.Intents += GatewayIntent.DirectMessages;
-                    bot.Prefixes = new[] { "jazzis" };
+                    bot.Prefixes = new[] { "nemis" };
                     bot.ReadyEventDelayMode = ReadyEventDelayMode.Guilds;
                     bot.ShardCount = 1;
                 })
