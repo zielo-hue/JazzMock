@@ -75,18 +75,7 @@ namespace JazzMock.Services
                     List<String> history = new List<string>();
                     foreach (var oldMessage in oldMessages)
                     {
-                        // trycatch to handle weird messages like pinned message indicators i can probably do something else
-                        try
-                        {
-                            if (!String.IsNullOrWhiteSpace(oldMessage.Content))
-                            {
-                                history.Add("<|startoftext|>" + oldMessage.Content + "<|endoftext|>");
-                            }
-                        }
-                        catch
-                        {
-                            // ignored
-                        }
+                        history.Add("<|startoftext|>" + oldMessage.Content + "<|endoftext|>");
                     }
                     history.Reverse();
 
