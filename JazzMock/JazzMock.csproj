@@ -6,8 +6,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Disqord" Version="1.0.0-04132021-6" />
-      <PackageReference Include="Disqord.Bot" Version="1.0.0-04132021-6" />
+      <PackageReference Include="Disqord" Version="1.0.0-05062021-27" />
+      <PackageReference Include="Disqord.Bot" Version="1.0.0-05062021-27" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0-preview.3.21201.4" />
       <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0-preview.3.21201.4" />
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0-preview.3.21201.4" />
@@ -24,6 +24,15 @@
       <None Update="config.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Remove="Python\venv\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Python\venv\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="Python\venv\**" />
     </ItemGroup>
 
 </Project>

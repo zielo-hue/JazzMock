@@ -22,7 +22,7 @@ namespace JazzMock.Modules
 
         [Command("genconvo", "generate", "gen")]
         [Description("Generate a conversation.")]
-        [Cooldown(1, 20, CooldownMeasure.Seconds, CooldownBucketType.User)]
+        [Cooldown(1, 15, CooldownMeasure.Seconds, CooldownBucketType.Guild)]
         public async Task GenConvoAsync(string prefix = "")
         {
             await Reaction(new LocalEmoji("🚮"));

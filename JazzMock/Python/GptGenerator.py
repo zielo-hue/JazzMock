@@ -23,6 +23,7 @@ while True:
     message = multi_message[1]
     truncateArg = "<|endoftext|>"
     print(f"received request {message.decode('utf-8')}")
+    genlength = 60
 
     requestCount += 1
     print(args)
@@ -30,7 +31,7 @@ while True:
         truncateArg = ""
     results = gpt2.generate(sess, run_name=RUN_NAME, temperature=.7, nsamples=2, batch_size=2,
                             prefix=message.decode(
-                                "utf-8"), length=250,
+                                "utf-8"), length=genlength,
                             return_as_list=True, include_prefix=False, truncate=truncateArg)
     for r in results:
         if r.isspace() or len(r.strip()) == 0:
