@@ -25,7 +25,6 @@ namespace JazzMock.Services
         private Random _rand;
         private RequestSocket _tunnel;
         private DiscordClientBase _client;
-        private uint _queue;
         private readonly Channel<MessageReceivedEventArgs> _channel;
         private List<string> _ignoreList;
         
@@ -36,12 +35,12 @@ namespace JazzMock.Services
             _rand = new Random();
             _tunnel = new RequestSocket();
             _tunnel.Connect("tcp://127.0.0.1:5556");
-            _queue = 0;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await Client.WaitUntilReadyAsync(stoppingToken);
+            await Client.SetPresenceAsync(new LocalActivity("with your willy", ActivityType.Playing));
             _ignoreList = new List<string>
             {
                 _client.CurrentUser.Name,
@@ -55,7 +54,7 @@ namespace JazzMock.Services
                     using (e.Channel.BeginTyping())
                     {
                         var lookupLimit = 4;
-                        if (e.Message.Content.Contains("?") && _rand.Next(1, 3) == 1)
+                        if (e.Message.Content.Contains("?") && _rand.Next(1, 11) > 1)
                             lookupLimit = 0; // if the message is a question dont get distracted by the context
                         
                         var oldMessages = await e.Channel.FetchMessagesAsync(limit: lookupLimit, RetrievalDirection.Before,
@@ -88,8 +87,8 @@ namespace JazzMock.Services
                                                                           + "<|endoftext|>\n<|startoftext|>");
                         if (String.IsNullOrWhiteSpace(genResponse))
                             genResponse = "_ _";
-                        if (e.Message.Author.Id == 597043844525195264)
-                            genResponse += " jazzbot";
+                        if (e.Message.Author.Id == 597043844525195264) // add bot provocation in start or end of string based on chance
+                            genResponse = _rand.Next(1, 3) == 1 ? genResponse + " jazzbot" : genResponse.Insert(0, "jazzbot ");
                         var msg = new LocalMessageBuilder()
                             .WithContent(genResponse);
                         if (!fun) // since fun responses are unprovoked "comments" in a conversation remove the reply
@@ -117,8 +116,7 @@ namespace JazzMock.Services
 
         public async Task<string> GenerateMessage(string prefixArg, byte settings = 0b0000)
         {
-            _queue++;
-            if (_queue > 10)
+            if (_channel.Reader.Count > 10)
             {
                 throw new TaskCanceledException("obvious spam is obvious"); // obvious spam is obvious
             }
@@ -134,7 +132,6 @@ namespace JazzMock.Services
             if (settings == 1) // genconvo?
                 response = response.Replace("<|startoftext|>", ">")
                     .Replace("<|endoftext|>", "");
-            _queue--;
             return response;
         }
 
