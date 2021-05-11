@@ -44,31 +44,37 @@ namespace JazzMock.Services
             await Client.WaitUntilReadyAsync(stoppingToken);
             _ignoreList = new List<string>
             {
-                "nemu",
                 _client.CurrentUser.Name,
                 _client.CurrentUser.Id.ToString(),
             };
             await foreach (var e in _channel.Reader.ReadAllAsync(stoppingToken))
+                // this foreach waits until a new object is added to process (very cool!)
             {
                 try
                 {
                     using (e.Channel.BeginTyping())
                     {
-                        var oldMessages = await e.Channel.FetchMessagesAsync(limit: 4, RetrievalDirection.Before,
-                            startFromId: e.MessageId, new DefaultRestRequestOptions()); // get old messages for context
+                        var lookupLimit = 4;
+                        if (e.Message.Content.Contains("?") && _rand.Next(1, 3) == 1)
+                            lookupLimit = 0; // if the message is a question dont get distracted by the context
+                        
+                        var oldMessages = await e.Channel.FetchMessagesAsync(limit: lookupLimit, RetrievalDirection.Before,
+                            startFromId: e.MessageId,
+                            new DefaultRestRequestOptions()); // get old messages for context
                         List<String> history = new List<string>();
                         foreach (var oldMessage in oldMessages)
                         {
                             history.Add("<|startoftext|>" + oldMessage.Content + "<|endoftext|>");
                         }
-                        history.Reverse();
 
+                        history.Reverse();
                         var genPrefix = String.Join("\n", history);
 
+                        // determine if the queued request was unprovoked
                         var fun = true;
                         foreach (var keyword in _ignoreList)
                         {
-                            if (e.Message.Content.Contains(keyword))
+                            if (e.Message.Content.ToLower().Contains(keyword.ToLower()))
                             {
                                 fun = false;
                                 break;
@@ -82,6 +88,8 @@ namespace JazzMock.Services
                                                                           + "<|endoftext|>\n<|startoftext|>");
                         if (String.IsNullOrWhiteSpace(genResponse))
                             genResponse = "_ _";
+                        if (e.Message.Author.Id == 597043844525195264)
+                            genResponse += " jazzbot";
                         var msg = new LocalMessageBuilder()
                             .WithContent(genResponse);
                         if (!fun) // since fun responses are unprovoked "comments" in a conversation remove the reply
@@ -132,9 +140,10 @@ namespace JazzMock.Services
 
         private bool IgnoreMessage(bool fun, MessageReceivedEventArgs eventArgs)
         {
+            if (eventArgs.Message.Author.Id == 597043844525195264 && _rand.Next(1, 3) == 1)
+                return false;
             if (!(eventArgs.Message.Author.Id != _client.CurrentUser.Id
-                  && (eventArgs.Message.Content.ToLower().Contains("nemu")
-                      || eventArgs.Message.Content.ToLower().Contains(_client.CurrentUser.Name)
+                  && (eventArgs.Message.Content.ToLower().Contains(_client.CurrentUser.Name)
                       || eventArgs.Message.MentionedUsers.Contains(_client.CurrentUser)) // this does not work
                 )
             ) // check that the message has trigger words or if the message is by the bot itself. if not, continue on

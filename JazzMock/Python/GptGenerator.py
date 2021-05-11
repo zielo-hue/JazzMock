@@ -3,7 +3,8 @@ import zmq
 import time
 import random
 
-RUN_NAME = "test"
+RUN_NAME = "fredda"
+#RUN_NAME = "test"
 
 sess = gpt2.start_tf_sess()
 gpt2.load_gpt2(sess, run_name=RUN_NAME)  # The name of your checkpoint
@@ -23,12 +24,13 @@ while True:
     message = multi_message[1]
     truncateArg = "<|endoftext|>"
     print(f"received request {message.decode('utf-8')}")
-    genlength = 60
+    genlength = 50
 
     requestCount += 1
     print(args)
     if args == 1: # from the genconvo command
         truncateArg = ""
+        genlength = 200
     results = gpt2.generate(sess, run_name=RUN_NAME, temperature=.7, nsamples=2, batch_size=2,
                             prefix=message.decode(
                                 "utf-8"), length=genlength,
@@ -45,7 +47,7 @@ while True:
 
     print("sent response\n")
 
-    if requestCount > 20:
+    if requestCount > 15:
         print("resetting graph...")
         requestCount = 0
         gpt2.reset_session(sess)
