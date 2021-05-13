@@ -94,7 +94,7 @@ namespace JazzMock.Services
                             await _client.SendMessageAsync(e.ChannelId,
                                 new LocalMessageBuilder().WithContent("...I'm not going to bother.")
                                     .WithReply(e.MessageId, e.ChannelId, e.GuildId)
-                                    .Build());
+                                    .Build(), new DefaultRestRequestOptions());
                             return;
                         }
 
