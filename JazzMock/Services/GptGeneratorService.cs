@@ -89,6 +89,15 @@ namespace JazzMock.Services
                             genResponse = "_ _";
                         if (e.Message.Author.Id == 597043844525195264) // add bot provocation in start or end of string based on chance
                             genResponse = _rand.Next(1, 3) == 1 ? genResponse + " jazzbot" : genResponse.Insert(0, "jazzbot ");
+                        if (genResponse.Length > 2000)
+                        {
+                            await _client.SendMessageAsync(e.ChannelId,
+                                new LocalMessageBuilder().WithContent("...I'm not going to bother.")
+                                    .WithReply(e.MessageId, e.ChannelId, e.GuildId)
+                                    .Build());
+                            return;
+                        }
+
                         var msg = new LocalMessageBuilder()
                             .WithContent(genResponse);
                         if (!fun) // since fun responses are unprovoked "comments" in a conversation remove the reply
