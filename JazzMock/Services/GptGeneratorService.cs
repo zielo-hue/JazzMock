@@ -63,7 +63,9 @@ namespace JazzMock.Services
                         List<String> history = new List<string>();
                         foreach (var oldMessage in oldMessages)
                         {
-                            history.Add("<|startoftext|>" + oldMessage.Content + "<|endoftext|>");
+                            // this is expensive. cba to find a more efficient method to remove links
+                            var sanitizedMessage = Regex.Replace(oldMessage.Content + " ", @"http[^\s]+", "").Trim();
+                            history.Add("<|startoftext|>" + sanitizedMessage + "<|endoftext|>");
                         }
 
                         history.Reverse();
