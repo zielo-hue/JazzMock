@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -26,7 +27,10 @@ namespace JazzMock.Services
         private RequestSocket _tunnel;
         private DiscordClientBase _client;
         private readonly Channel<MessageReceivedEventArgs> _channel;
+        private List<string> _incompleteKeywords;
         private List<string> _ignoreList;
+        
+        private static readonly Regex LinkRegex = new(@"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)", RegexOptions.Compiled);
         
         public GptGeneratorService(ILogger<GptGeneratorService> logger, DiscordClientBase client) : base(logger, client)
         {
@@ -41,11 +45,9 @@ namespace JazzMock.Services
         {
             await Client.WaitUntilReadyAsync(stoppingToken);
             await Client.SetPresenceAsync(new LocalActivity("with your willy", ActivityType.Playing));
-            _ignoreList = new List<string>
-            {
-                _client.CurrentUser.Name,
-                _client.CurrentUser.Id.ToString(),
-            };
+            _ignoreList = new List<string> {_client.CurrentUser.Name, _client.CurrentUser.Id.ToString(),};
+            _incompleteKeywords = new List<string> {"also", "like", "but"}; // hardcoded keywords omegalul
+            
             await foreach (var e in _channel.Reader.ReadAllAsync(stoppingToken))
                 // this foreach waits until a new object is added to process (very cool!)
             {
@@ -63,8 +65,7 @@ namespace JazzMock.Services
                         List<String> history = new List<string>();
                         foreach (var oldMessage in oldMessages)
                         {
-                            // this is expensive. cba to find a more efficient method to remove links
-                            var sanitizedMessage = Regex.Replace(oldMessage.Content + " ", @"http[^\s]+", "").Trim();
+                            var sanitizedMessage = LinkRegex.Replace(oldMessage.Content + " ", String.Empty).Trim();
                             history.Add("<|startoftext|>" + sanitizedMessage + "<|endoftext|>");
                         }
 
@@ -87,6 +88,9 @@ namespace JazzMock.Services
                                                                               .Replace(_client.CurrentUser.Name, "")
                                                                               .Replace("  ", " ").Trim()
                                                                           + "<|endoftext|>\n<|startoftext|>");
+                        if (IsIncomplete(genResponse))
+                            genResponse += "\n" + await GenerateMessage("<|startoftext|>" + genResponse
+                                + "<|endoftext|>\n<|startoftext|>");
                         if (String.IsNullOrWhiteSpace(genResponse))
                             genResponse = "_ _";
                         if (e.Message.Author.Id == 597043844525195264) // add bot provocation in start or end of string based on chance
@@ -138,7 +142,7 @@ namespace JazzMock.Services
             
             _tunnel.TrySendMultipartMessage(message);
             
-            var response = _tunnel.ReceiveFrameString();
+            var response = Regex.Unescape(_tunnel.ReceiveFrameString());
             Logger.LogInformation("received response...");
             if (settings == 1) // genconvo?
                 response = response.Replace("<|startoftext|>", ">")
@@ -163,6 +167,17 @@ namespace JazzMock.Services
                 {
                     return true;
                 } // TODO cleanup this sucks lol
+            }
+
+            return false;
+        }
+
+        private bool IsIncomplete(string message)
+        {
+            foreach (var keyword in _incompleteKeywords)
+            {
+                if (message.ToLower().EndsWith(keyword))
+                    return true;
             }
 
             return false;
