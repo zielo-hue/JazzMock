@@ -45,5 +45,42 @@ namespace JazzMock.Modules
                     .WithTitle("role added"));
             }
         }
+
+        [Command("deleterole")]
+        [RequireBotGuildPermissions(Permission.ManageRoles)]
+        [RequireAuthorGuildPermissions(Permission.ManageRoles)]
+        public async Task DeleteRoleAsync(Snowflake roleid)
+        {
+            var embed = new LocalEmbedBuilder();
+            try
+            {
+                await Context.Guild.DeleteRoleAsync(roleid, new DefaultRestRequestOptions());
+                embed.WithTitle("ok");
+            }
+            catch
+            {
+                embed.WithTitle("no");
+            }
+
+            await Reply(embed);
+        }
+
+        [Command("removerole", "rmrole")]
+        [RequireBotGuildPermissions(Permission.ManageRoles)]
+        public async Task RemoveRoleAsync(Color color)
+        {
+            var embed = new LocalEmbedBuilder();
+            var roleMatch = Context.Guild.Roles.Values.FirstOrDefault(x => x.Name == color.ToString());
+            if (roleMatch is null)
+                embed.WithTitle("you dont have that color");
+            else
+            {
+                await Context.Guild.RevokeRoleAsync(Context.Author.Id, roleMatch.Id, new DefaultRestRequestOptions());
+                embed.WithTitle($"ok, removed {roleMatch.Name} of id {roleMatch.Id}");
+                embed.WithColor(roleMatch.Color);
+            }
+
+            await Reply(embed);
+        }
     }
 }
