@@ -2,6 +2,7 @@
 import zmq
 import time
 import random
+import re
 
 RUN_NAME = "fredda"
 #RUN_NAME = "test"
@@ -38,6 +39,8 @@ while True:
     for r in results:
         if r.isspace() or len(r.strip()) == 0:
             results.remove(r)
+        clean = re.compile('<\|.*?\|>')
+        r = re.sub(clean, '', r)
 
     print(*results, sep=" || ")
     # random_result = random.choice(results).encode()
@@ -47,12 +50,10 @@ while True:
 
     print("sent response\n")
 
-    if requestCount > 15:
+    if requestCount > 10:
         print("resetting graph...")
         requestCount = 0
         gpt2.reset_session(sess)
         sess = gpt2.start_tf_sess()
         gpt2.load_gpt2(sess, run_name=RUN_NAME)  # The name of your checkpoint
         graph = gpt2.tf.compat.v1.get_default_graph()
-
-    time.sleep(.1)
