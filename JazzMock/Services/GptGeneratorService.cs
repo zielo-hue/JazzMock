@@ -56,7 +56,7 @@ namespace JazzMock.Services
                     using (e.Channel.BeginTyping())
                     {
                         var lookupLimit = 4;
-                        if (e.Message.Content.Contains("?") && _rand.Next(1, 11) > 1)
+                        if (e.Message.Content.Contains("?"))
                             lookupLimit = 0; // if the message is a question dont get distracted by the context
                         
                         var oldMessages = await e.Channel.FetchMessagesAsync(limit: lookupLimit, RetrievalDirection.Before,
@@ -154,6 +154,7 @@ namespace JazzMock.Services
         {
             if (eventArgs.Message.Author.Id == 597043844525195264 && _rand.Next(1, 3) == 1)
                 return false;
+            
             if (!(eventArgs.Message.Author.Id != _client.CurrentUser.Id
                   && (eventArgs.Message.Content.ToLower().Contains(_client.CurrentUser.Name)
                       || eventArgs.Message.MentionedUsers.Contains(_client.CurrentUser)) // this does not work
@@ -162,7 +163,7 @@ namespace JazzMock.Services
             {
                 if (!(fun
                       && eventArgs.Message.Author.Id != _client.CurrentUser.Id
-                      && (eventArgs.Message.ChannelId == 839699838051418123)
+                      && (eventArgs.Message.GetChannel().CategoryId == 837069822406688772)
                     )) // check that the message was sent in hardcoded guilds, and make sure again that the message wasn't sent by the bot (to be really sure)
                 {
                     return true;
