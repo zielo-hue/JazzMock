@@ -66,7 +66,8 @@ namespace JazzMock.Services
                         foreach (var oldMessage in oldMessages)
                         {
                             var sanitizedMessage = LinkRegex.Replace(oldMessage.Content + " ", String.Empty).Trim();
-                            history.Add("<|startoftext|>" + sanitizedMessage + "<|endoftext|>");
+                            if (sanitizedMessage != String.Empty)
+                                history.Add("<|startoftext|>" + sanitizedMessage + "<|endoftext|>");
                         }
 
                         history.Reverse();
