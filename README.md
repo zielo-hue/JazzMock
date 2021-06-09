@@ -3,4 +3,4 @@ funny haha bot it uses [gpt-2-simple](https://github.com/minimaxir/gpt-2-simple)
 
 completely ignore tfNET_sandbox i didnt mean to add it to git
 
-![alt text](https://imgur.com/aqkBUaL)
+![alt text](https://i.imgur.com/aqkBUaL.png)
