@@ -14,7 +14,7 @@ namespace JazzMock.Modules
         [Description("Displays information about the bot.")]
         public async Task HelpAsync()
         {
-            var embed = new LocalEmbedBuilder()
+            var embed = new LocalEmbed()
                 .WithTitle(GptGeneratorService.Client.CurrentUser.Name)
                 .WithDescription("powere b gpt-2 n shiny new disqord...");
             await Response(embed);
@@ -26,11 +26,11 @@ namespace JazzMock.Modules
         public async Task GenConvoAsync(string prefix = "")
         {
             await Reaction(new LocalEmoji("🚮"));
-            var embed = new LocalEmbedBuilder()
+            var embed = new LocalEmbed()
                 .WithTitle("gen ben len");
             var genText = await GptGeneratorService.GenerateMessage(prefix, 0b01);
             embed.WithDescription(genText).WithFooter($"requested by {Context.Author.Name}", Context.Author.GetAvatarUrl());
-            await Reply(embed, new LocalMentionsBuilder() {MentionRepliedUser = false});
+            await Reply(embed);
         }
     }
 }

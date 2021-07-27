@@ -44,7 +44,7 @@ namespace JazzMock.Services
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await Client.WaitUntilReadyAsync(stoppingToken);
-            await Client.SetPresenceAsync(new LocalActivity("with your willy", ActivityType.Playing));
+            await Client.SetPresenceAsync(new LocalActivity("counter strike", ActivityType.Playing));
             _ignoreList = new List<string> {_client.CurrentUser.Name, _client.CurrentUser.Id.ToString(),};
             _incompleteKeywords = new List<string> {"also", "like", "but"}; // hardcoded keywords omegalul
             
@@ -56,7 +56,7 @@ namespace JazzMock.Services
                     using (e.Channel.BeginTyping())
                     {
                         var lookupLimit = 4;
-                        if (e.Message.Content.Contains("?"))
+                        if (e.Message.Content.Contains("?") || e.Message.Content.Contains("!"))
                             lookupLimit = 0; // if the message is a question dont get distracted by the context
                         
                         var oldMessages = await e.Channel.FetchMessagesAsync(limit: lookupLimit, RetrievalDirection.Before,
@@ -99,18 +99,18 @@ namespace JazzMock.Services
                         if (genResponse.Length > 2000)
                         {
                             await _client.SendMessageAsync(e.ChannelId,
-                                new LocalMessageBuilder().WithContent("...I'm not going to bother.")
-                                    .WithReply(e.MessageId, e.ChannelId, e.GuildId)
-                                    .Build(), new DefaultRestRequestOptions());
+                                new LocalMessage().WithContent("...I'm not going to bother.")
+                                    .WithReply(e.MessageId, e.ChannelId, e.GuildId),
+                                new DefaultRestRequestOptions());
                             return;
                         }
 
-                        var msg = new LocalMessageBuilder()
+                        var msg = new LocalMessage()
                             .WithContent(genResponse);
                         if (!fun) // since fun responses are unprovoked "comments" in a conversation remove the reply
                             msg.WithReply(e.MessageId, e.ChannelId, e.GuildId);
                         Logger.LogInformation("replying...");
-                        await _client.SendMessageAsync(e.ChannelId, msg.Build(), new DefaultRestRequestOptions());
+                        await _client.SendMessageAsync(e.ChannelId, msg, new DefaultRestRequestOptions());
                     }
                 }
                 catch (Exception ex)
@@ -122,7 +122,7 @@ namespace JazzMock.Services
 
         protected override ValueTask OnMessageReceived(MessageReceivedEventArgs eventArgs)
         {
-            var fun = _rand.Next(1, 20) == 1; // fun value is used to determine whether the bot should answer unprovoked or not
+            var fun = _rand.Next(1, 31) == 1; // fun value is used to determine whether the bot should answer unprovoked or not
             if (IgnoreMessage(fun, eventArgs))
                 return default;
             

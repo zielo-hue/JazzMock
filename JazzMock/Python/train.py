@@ -24,5 +24,6 @@ gpt2.finetune(
     sample_every=15000,  # Generate a text sample ever X number of iter.
     save_every=300,  # Save a snapshot every X number of iter.
     learning_rate=0.0001,  # Lower to 0.00001 if you are not getting massive changes in results
-    batch_size=1  # Keep at 1 or 2, will use up more memory if you raise this
+    batch_size=2,  # Keep at 1 or 2, will use up more memory if you raise this
+    overwrite=True
 )

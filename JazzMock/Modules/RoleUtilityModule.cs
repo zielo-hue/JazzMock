@@ -34,14 +34,14 @@ namespace JazzMock.Modules
             }
             if (Context.Author.RoleIds.Contains(role.Id)) // TODO: add a condition that checks if unconventional role has the color
             {
-                await Reply(new LocalEmbedBuilder()
+                await Reply(new LocalEmbed()
                     .WithTitle("no need")
                     .WithDescription("you already have color"));
             }
             else
             {
                 await Context.Guild.GrantRoleAsync(Context.Author.Id, role.Id, new DefaultRestRequestOptions());
-                await Reply(new LocalEmbedBuilder()
+                await Reply(new LocalEmbed()
                     .WithTitle("role added"));
             }
         }
@@ -51,7 +51,7 @@ namespace JazzMock.Modules
         [RequireAuthorGuildPermissions(Permission.ManageRoles)]
         public async Task DeleteRoleAsync(Snowflake roleid)
         {
-            var embed = new LocalEmbedBuilder();
+            var embed = new LocalEmbed();
             try
             {
                 await Context.Guild.DeleteRoleAsync(roleid, new DefaultRestRequestOptions());
@@ -69,7 +69,7 @@ namespace JazzMock.Modules
         [RequireBotGuildPermissions(Permission.ManageRoles)]
         public async Task RemoveRoleAsync(Color color)
         {
-            var embed = new LocalEmbedBuilder();
+            var embed = new LocalEmbed();
             var roleMatch = Context.Guild.Roles.Values.FirstOrDefault(x => x.Name == color.ToString());
             if (roleMatch is null)
                 embed.WithTitle("you dont have that color");
