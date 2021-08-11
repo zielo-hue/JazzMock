@@ -4,7 +4,7 @@ import time
 import random
 import re
 
-RUN_NAME = "fredda"
+
 #RUN_NAME = "test"
 
 sess = gpt2.start_tf_sess()
@@ -43,9 +43,6 @@ while True:
         r = re.sub(clean, '', r)
 
     print(*results, sep=" || ")
-    # random_result = random.choice(results).encode()
-    # socket.send(random_result)
-    # socket.send_string(newline.join(results))
     socket.send_string(random.choice(results))
 
     print("sent response\n")

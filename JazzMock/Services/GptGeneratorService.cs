@@ -46,7 +46,7 @@ namespace JazzMock.Services
             await Client.WaitUntilReadyAsync(stoppingToken);
             await Client.SetPresenceAsync(new LocalActivity("counter strike", ActivityType.Playing));
             _ignoreList = new List<string> {_client.CurrentUser.Name, _client.CurrentUser.Id.ToString(),};
-            _incompleteKeywords = new List<string> {"also", "like", "but"}; // hardcoded keywords omegalul
+            _incompleteKeywords = new List<string> {"also", "like", "but", "i mean"}; // hardcoded keywords omegalul
             
             await foreach (var e in _channel.Reader.ReadAllAsync(stoppingToken))
                 // this foreach waits until a new object is added to process (very cool!)
@@ -96,8 +96,7 @@ namespace JazzMock.Services
                                 + "<|endoftext|>\n<|startoftext|>");
                         if (String.IsNullOrWhiteSpace(genResponse))
                             genResponse = "_ _";
-                        // if (e.Message.Author.Id == 597043844525195264) // add bot provocation in start or end of string based on chance
-                        //    genResponse = _rand.Next(1, 3) == 1 ? genResponse + " jazzbot" : genResponse.Insert(0, "jazzbot ");
+                        
                         if (genResponse.Length > 2000)
                         {
                             await _client.SendMessageAsync(e.ChannelId,
@@ -155,8 +154,10 @@ namespace JazzMock.Services
 
         private bool IgnoreMessage(bool fun, MessageReceivedEventArgs eventArgs)
         {
-            if (eventArgs.Message.Author.Id == 597043844525195264 && _rand.Next(1, 3) == 1)
-                return false;
+            if (eventArgs.Message.ChannelId == 858762692806312017)
+                return true;
+            
+            
             
             if (!(eventArgs.Message.Author.Id != _client.CurrentUser.Id
                   && (eventArgs.Message.Content.ToLower().Contains(_client.CurrentUser.Name.ToLower())
