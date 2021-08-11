@@ -84,18 +84,20 @@ namespace JazzMock.Services
                             }
                         }
                         
+                        var trimmedPrompt = Regex.Replace(e.Message.Content, _client.CurrentUser.Name, String.Empty,
+                            RegexOptions.IgnoreCase);
                         var genResponse = await GenerateMessage(genPrefix + "\n<|startoftext|>"
-                                                                          + e.Message.Content
-                                                                              .Replace(_client.CurrentUser.Name, "")
+                                                                          + trimmedPrompt
                                                                               .Replace("  ", " ").Trim()
                                                                           + "<|endoftext|>\n<|startoftext|>");
+                        
                         if (IsIncomplete(genResponse))
                             genResponse += "\n" + await GenerateMessage("<|startoftext|>" + genResponse
                                 + "<|endoftext|>\n<|startoftext|>");
                         if (String.IsNullOrWhiteSpace(genResponse))
                             genResponse = "_ _";
-                        if (e.Message.Author.Id == 597043844525195264) // add bot provocation in start or end of string based on chance
-                            genResponse = _rand.Next(1, 3) == 1 ? genResponse + " jazzbot" : genResponse.Insert(0, "jazzbot ");
+                        // if (e.Message.Author.Id == 597043844525195264) // add bot provocation in start or end of string based on chance
+                        //    genResponse = _rand.Next(1, 3) == 1 ? genResponse + " jazzbot" : genResponse.Insert(0, "jazzbot ");
                         if (genResponse.Length > 2000)
                         {
                             await _client.SendMessageAsync(e.ChannelId,
@@ -132,7 +134,7 @@ namespace JazzMock.Services
 
         public async Task<string> GenerateMessage(string prefixArg, byte settings = 0b0000)
         {
-            if (_channel.Reader.Count > 10)
+            if (_channel.Reader.Count > 6)
             {
                 throw new TaskCanceledException("obvious spam is obvious"); // obvious spam is obvious
             }
@@ -157,7 +159,7 @@ namespace JazzMock.Services
                 return false;
             
             if (!(eventArgs.Message.Author.Id != _client.CurrentUser.Id
-                  && (eventArgs.Message.Content.ToLower().Contains(_client.CurrentUser.Name)
+                  && (eventArgs.Message.Content.ToLower().Contains(_client.CurrentUser.Name.ToLower())
                       || eventArgs.Message.MentionedUsers.Contains(_client.CurrentUser)) // this does not work
                 )
             ) // check that the message has trigger words or if the message is by the bot itself. if not, continue on
