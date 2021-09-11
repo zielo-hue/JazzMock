@@ -86,6 +86,9 @@ namespace JazzMock.Services
                         
                         var trimmedPrompt = Regex.Replace(e.Message.Content, _client.CurrentUser.Name, String.Empty,
                             RegexOptions.IgnoreCase);
+                        var truncateStringIndex = trimmedPrompt.LastIndexOf("<|endoftext|>", StringComparison.Ordinal);
+                        if (truncateStringIndex != -1)
+                            trimmedPrompt = trimmedPrompt.Substring(truncateStringIndex + 13);
                         var genResponse = await GenerateMessage(genPrefix + "\n<|startoftext|>"
                                                                           + trimmedPrompt
                                                                               .Replace("  ", " ").Trim()
